@@ -2,35 +2,48 @@
 
 namespace MZ\Proxy\Tests;
 
-use MZ\Proxy\KeyGenerator as KeyGens;
+use MZ\Proxy;
 
 class CallableProxyTest extends \PHPUnit_Framework_TestCase
 {
-    protected $key_generators;
+    protected $proxy;
 
     public function setUp()
     {
-        $this->key_generators = array();
-        $this->key_generators['serialize'] = new KeyGens\Serialize;
+        $this->proxy = new Proxy\CallableProxy();
+        $this->proxy->setBackend(new Proxy\Backend\Memory());
+        $this->proxy->setKeyGenerator(new Proxy\KeyGenerator\Serialize());
+        $this->proxy->setSerializer(new Proxy\Serializer\Null());
+        $this->proxy->setCacheKey('test_key');
     }
 
-    public function testGenerate()
+    public function testProxy()
     {
-        $test_object = new \stdClass;
-        $test_object->attr1 = 'value';
-        $test_object->attr2 = 123;
-        $test_object->attr3 = array(1, 2, 3);
-        $arguments = array(
-            'string',
-            array('array' => true),
-            $test_object,
-        );
-        $namespace = 'test';
+        $this->proxy->setTimeout(1);
 
-        foreach ($this->key_generators as $generator) {
-            $key = $generator->generate($namespace, $arguments);
-            $this->assertTrue(is_string($key), 'Key is string');
-            $this->assertTrue(!empty($key), 'Key is not empty');
-        }
+        $test_number = 1;
+        $callback = function() use (&$test_number) {
+            return $test_number++;
+        };
+        $this->proxy->setCallable($callback);
+
+        $proxy = $this->proxy;  // $this->proxy() won't work
+        $result = $proxy();
+        $this->assertEquals($result, 1, 'Proxy returned valid data');
+
+        // second call should get cached result, $test_number won't increment
+        $result = $proxy();
+        $this->assertEquals($result, 1, 'Proxy returned cached data');
+
+        $result = $proxy('arg1');
+        $this->assertEquals($result, 2, 'Proxy returned fresh data for second arguments set');
+
+        $result = $proxy('arg1');
+        $this->assertEquals($result, 2, 'Proxy returned cached data for second arguments set');
+
+        sleep(2);
+
+        $result = $proxy();
+        $this->assertEquals($result, 3, 'Proxy returned fresh data after timeout');
     }
 }

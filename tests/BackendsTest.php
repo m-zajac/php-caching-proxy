@@ -31,12 +31,12 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
         $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
-        foreach ($this->backends as $backend) {
+        foreach ($this->backends as $backend_name => $backend) {
             $backend->set($test_key, $test_value);
             $this->assertEquals(
                 $backend->get($test_key),
                 $test_value,
-                'Returned valid data'
+                "$backend_name - returned valid data"
             );
         }
     }
@@ -46,12 +46,12 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
         $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
-        foreach ($this->backends as $backend) {
+        foreach ($this->backends as $backend_name => $backend) {
             $backend->clear($test_key);
             $this->assertEquals(
                 $backend->get($test_key),
                 null,
-                'Data deleted properly'
+                "$backend_name - data deleted properly"
             );
         }
     }
@@ -61,17 +61,18 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
         $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
-        foreach ($this->backends as $backend) {
+        foreach ($this->backends as $backend_name => $backend) {
             $backend->set($test_key, $test_value, 1);
             $this->assertEquals(
                 $backend->get($test_key),
-                $test_value
+                $test_value,
+                "$backend_name - returned valid data"
             );
             sleep(2);
             $this->assertEquals(
                 $backend->get($test_key),
                 null,
-                'Data expired propelry'
+                "$backend_name - data expired propelry"
             );
         }
     }

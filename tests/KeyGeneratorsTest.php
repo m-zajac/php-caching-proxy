@@ -11,12 +11,12 @@ class KeyGeneratorsTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->key_generators = array();
-        $this->key_generators['serialize'] = new KeyGens\Serialize;
+        $this->key_generators['serialize'] = new KeyGens\Serialize();
     }
 
     public function testGenerate()
     {
-        $test_object = new \stdClass;
+        $test_object = new \stdClass();
         $test_object->attr1 = 'value';
         $test_object->attr2 = 123;
         $test_object->attr3 = array(1, 2, 3);
