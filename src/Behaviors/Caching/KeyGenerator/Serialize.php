@@ -1,6 +1,6 @@
 <?php
 
-namespace MZ\Proxy\KeyGenerator;
+namespace MZ\Proxy\Behaviors\Caching\KeyGenerator;
 
 /**
  * Serialize key generator

@@ -1,8 +1,9 @@
 <?php
 
-namespace MZ\Proxy\Tests;
+namespace MZ\Proxy\Tests\Caching;
 
-use MZ\Proxy;
+use MZ\Proxy\ObjectProxy;
+use MZ\Proxy\Behaviors\Caching;
 
 class ObjectProxyTest extends \PHPUnit_Framework_TestCase
 {
@@ -10,14 +11,18 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->proxy = new Proxy\ObjectProxy();
-        $this->proxy->proxySetBackend(new Proxy\Backend\Memory());
-        $this->proxy->proxySetKeyGenerator(new Proxy\KeyGenerator\Serialize());
-        $this->proxy->proxySetSerializer(new Proxy\Serializer\Null());
-        $this->proxy->proxySetCacheKey('test_key');
+        $behavior = new Caching\CachingBehavior();
+        $behavior->setBackend(new Caching\Backend\Memory());
+        $behavior->setKeyGenerator(new Caching\KeyGenerator\Serialize());
+        $behavior->setSerializer(new Caching\Serializer\Null());
+        $behavior->setCacheKey('test_key');
 
         $this->test_object = $this->getMock('stdClass', array('method1', 'method2', '__toString'));
-        $this->proxy->proxySetObject($this->test_object);
+
+        $this->proxy = new ObjectProxy(
+            $this->test_object,
+            $behavior
+        );
     }
 
     public function testProxy()
@@ -26,7 +31,7 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
         $this->test_object
             ->expects($this->exactly(2))
             ->method('method1')
-            ->will($this->returnCallback(function() use (&$test_number) {
+            ->will($this->returnCallback(function () use (&$test_number) {
                 return $test_number++;
             }))
         ;
@@ -49,7 +54,7 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
         $this->test_object
             ->expects($this->exactly(1))
             ->method('method1')
-            ->will($this->returnCallback(function() use (&$test_number1) {
+            ->will($this->returnCallback(function () use (&$test_number1) {
                 return $test_number1++;
             }))
         ;
@@ -58,7 +63,7 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
         $this->test_object
             ->expects($this->exactly(2))
             ->method('method2')
-            ->will($this->returnCallback(function() use (&$test_number2) {
+            ->will($this->returnCallback(function () use (&$test_number2) {
                 return $test_number2++;
             }))
         ;
@@ -90,7 +95,7 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
 
         $this->proxy->test = 'test';
         $this->assertEquals($this->proxy->test, 'test', '__set, __get');
-        
+
         $this->assertTrue(isset($this->proxy->test), '__isset');
         unset($this->proxy->test);
         $this->assertFalse(isset($this->proxy->test), '__unset');

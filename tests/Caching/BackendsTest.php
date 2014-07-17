@@ -1,8 +1,8 @@
 <?php
 
-namespace MZ\Proxy\Tests;
+namespace MZ\Proxy\Tests\Caching;
 
-use MZ\Proxy\Backend as Backends;
+use MZ\Proxy\Behaviors\Caching\Backend as Backends;
 
 class BackendsTest extends \PHPUnit_Framework_TestCase
 {
@@ -81,6 +81,7 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
     {
         if (!class_exists('\Memcache')) {
             $this->markTestSkipped('No Memcache class, skipping...');
+
             return;
         }
 

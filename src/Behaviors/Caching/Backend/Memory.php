@@ -1,6 +1,6 @@
 <?php
 
-namespace MZ\Proxy\Backend;
+namespace MZ\Proxy\Behaviors\Caching\Backend;
 
 class Memory implements BackendInterface
 {

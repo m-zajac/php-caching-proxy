@@ -9,11 +9,7 @@ namespace MZ\Proxy;
 class ObjectProxy
 {
     protected $object;
-    protected $cache_key;
-    protected $backend;
-    protected $key_generator;
-    protected $serializer;
-    protected $default_timeout = 0;
+    protected $behavior;
     protected $method_proxies = array();
 
     /**
@@ -25,23 +21,16 @@ class ObjectProxy
      * Constructor
      * @param object $object
      * @param string $cache_key
-     * @param Backend\BackendInterface $backend
+     * @param Behaviors\BehaviorInterface $behavior
      * @param Serializer\SerializerInterface $serializer
      * @param KeyGenerator\KeyGeneratorInterface $key_generator
      */
     public function __construct(
         $object = null,
-        $cache_key = null,
-        Backend\BackendInterface $backend = null,
-        Serializer\SerializerInterface $serializer = null,
-        KeyGenerator\KeyGeneratorInterface $key_generator = null
-    )
-    {
+        Behaviors\BehaviorInterface $behavior = null
+    ) {
         $this->object = $object;
-        $this->cache_key = $cache_key;
-        $this->backend = $backend;
-        $this->key_generator = $key_generator;
-        $this->serializer = $serializer;
+        $this->behavior = $behavior;
     }
 
     /**
@@ -156,108 +145,24 @@ class ObjectProxy
     }
 
     /**
-     * Sets cache key
-     * @param string $key
+     * Sets behavior
+     * @param Behaviors\BehaviorInterface $behavior
      * @return ObjectProxy
      */
-    public function proxySetCacheKey($key)
+    public function proxySetBehavior(Behaviors\BehaviorInterface $behavior)
     {
-        $this->cache_key = $key;
+        $this->behavior = $behavior;
 
         return $this;
     }
 
     /**
-     * Returns cache key
-     * @return string
+     * Returns behavior
+     * @return Behavior\BehaviorInterface
      */
-    public function proxyGetCacheKey()
+    public function proxyGetBehavior()
     {
-        return $this->cache_key;
-    }
-
-    /**
-     * Sets default timeout
-     * @param int $value
-     * @return ObjectProxy
-     */
-    public function proxySetDefaultTimeout($value)
-    {
-        $this->default_timeout = $value;
-
-        return $this;
-    }
-
-    /**
-     * Returns default timeout
-     * @return int
-     */
-    public function proxyGetDefaultTimeout()
-    {
-        return $this->default_timeout;
-    }
-
-    /**
-     * Sets backend
-     * @param Backend\BackendInterface $backend
-     * @return ObjectProxy
-     */
-    public function proxySetBackend(Backend\BackendInterface $backend)
-    {
-        $this->backend = $backend;
-
-        return $this;
-    }
-
-    /**
-     * Returns backend
-     * @return Backend\BackendInterface
-     */
-    public function proxyGetBackend()
-    {
-        return $this->backend;
-    }
-
-    /**
-     * Sets serializer
-     * @param Serializer\SerializerInterface $serializer
-     * @return ObjectProxy
-     */
-    public function proxySetSerializer(Serializer\SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
-
-        return $this;
-    }
-
-    /**
-     * Returns serializer
-     * @return Serializer\SerializerInterface
-     */
-    public function proxyGetSerializer()
-    {
-        return $this->serializer;
-    }
-
-    /**
-     * Sets key generator
-     * @param KeyGenerator\KeyGeneratorInterface $key_generator
-     * @return ObjectProxy
-     */
-    public function proxySetKeyGenerator(KeyGenerator\KeyGeneratorInterface $key_generator)
-    {
-        $this->key_generator = $key_generator;
-
-        return $this;
-    }
-
-    /**
-     * Returns key generator
-     * @return KeyGenerator\KeyGeneratorInterface
-     */
-    public function proxyGetKeyGenerator()
-    {
-        return $this->key_generator;
+        return $this->behavior;
     }
 
     /**
@@ -284,20 +189,9 @@ class ObjectProxy
      */
     protected function proxyMakeMethodProxy($method_name)
     {
-        if (!$this->cache_key) {
-            throw new Exceptions\Exception('Cache key is not set');
-        }
-
-        if (!method_exists($this->object, $method_name)) {
-            throw new Exceptions\Exception("Method $method_name don't exist");
-        }
-
         return new CallableProxy(
             array($this->object, $method_name),
-            $this->cache_key.'.'.$method_name,
-            $this->backend,
-            $this->serializer,
-            $this->key_generator
+            $this->behavior
         );
     }
 }

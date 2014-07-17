@@ -1,8 +1,8 @@
 <?php
 
-namespace MZ\Proxy\Tests;
+namespace MZ\Proxy\Tests\Caching;
 
-use MZ\Proxy;
+use MZ\Proxy\Behaviors\Caching;
 
 class SerializersTest extends \PHPUnit_Framework_TestCase
 {
@@ -11,7 +11,7 @@ class SerializersTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->serializers = array();
-        $this->serializers['serialize'] = new Proxy\Serializer\Serialize();
+        $this->serializers['serialize'] = new Caching\Serializer\Serialize();
     }
 
     public function testSerialize()

@@ -1,8 +1,9 @@
 <?php
 
-namespace MZ\Proxy\Tests;
+namespace MZ\Proxy\Tests\Caching;
 
-use MZ\Proxy;
+use MZ\Proxy\CallableProxy;
+use MZ\Proxy\Behaviors\Caching;
 
 class CallableProxyTest extends \PHPUnit_Framework_TestCase
 {
@@ -10,19 +11,22 @@ class CallableProxyTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->proxy = new Proxy\CallableProxy();
-        $this->proxy->setBackend(new Proxy\Backend\Memory());
-        $this->proxy->setKeyGenerator(new Proxy\KeyGenerator\Serialize());
-        $this->proxy->setSerializer(new Proxy\Serializer\Null());
-        $this->proxy->setCacheKey('test_key');
+        $this->proxy = new CallableProxy();
+
+        $behavior = new Caching\CachingBehavior();
+        $behavior->setBackend(new Caching\Backend\Memory());
+        $behavior->setKeyGenerator(new Caching\KeyGenerator\Serialize());
+        $behavior->setSerializer(new Caching\Serializer\Null());
+        $behavior->setCacheKey('test_key');
+        $this->proxy->setBehavior($behavior);
     }
 
     public function testProxy()
     {
-        $this->proxy->setTimeout(1);
+        $this->proxy->getBehavior()->setTimeout(1);
 
         $test_number = 1;
-        $callback = function() use (&$test_number) {
+        $callback = function () use (&$test_number) {
             return $test_number++;
         };
         $this->proxy->setCallable($callback);

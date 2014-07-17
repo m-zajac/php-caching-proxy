@@ -1,6 +1,6 @@
 <?php
 
-namespace MZ\Proxy\KeyGenerator;
+namespace MZ\Proxy\Behaviors\Caching\KeyGenerator;
 
 /**
  * Interface for Proxy key generator

@@ -1,8 +1,8 @@
 <?php
 
-namespace MZ\Proxy\Tests;
+namespace MZ\Proxy\Tests\Caching;
 
-use MZ\Proxy\KeyGenerator as KeyGens;
+use MZ\Proxy\Behaviors\Caching\KeyGenerator as KeyGens;
 
 class KeyGeneratorsTest extends \PHPUnit_Framework_TestCase
 {

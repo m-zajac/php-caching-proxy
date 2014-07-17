@@ -1,6 +1,6 @@
 <?php
 
-namespace MZ\Proxy\Serializer;
+namespace MZ\Proxy\Behaviors\Caching\Serializer;
 
 /**
  * Interface for Proxy serializer
