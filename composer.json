@@ -1,7 +1,7 @@
 {
-    "name": "mz/proxy",
-    "description": "Proxy",
-    "keywords": ["proxy"],
+    "name": "mz/php-proxy",
+    "description": "Proxy utilities (i.e. caching proxy)",
+    "keywords": ["proxy", "caching proxy", "cache"],
     "homepage": "https://github.com/m-zajac/php-proxy",
     "type": "library",
     "authors": [
