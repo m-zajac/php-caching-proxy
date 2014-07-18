@@ -47,7 +47,7 @@ class CachingBehavior implements BehaviorInterface
 
         // try getting result from cache
         $result = $this->backend->get($cache_key);
-        if ($result !== null) {
+        if ($result !== false) {
             return $this->serializer->unserialize($result);
         }
 
