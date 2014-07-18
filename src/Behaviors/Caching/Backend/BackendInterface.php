@@ -8,25 +8,28 @@ namespace MZ\Proxy\Behaviors\Caching\Backend;
 interface BackendInterface
 {
     /**
-     * Stores value for givent key
-     * @param string $key
+     * Stores value for givent arguments
+     * @param string $namespace
+     * @param array $arguments
      * @param mixed $value
      * @param int $timout [seconds]
      * @return Interface
      */
-    public function set($key, $value, $timeout = 0);
+    public function set($namespace, array $arguments, $value, $timeout = 0);
 
     /**
-     * Unsets value for given key
-     * @param string $key
+     * Unsets value for given arguments
+     * @param string $namespace
+     * @param array $arguments
      * @return Interface
      */
-    public function clear($key);
+    public function clear($namespace, array $arguments);
 
     /**
-     * Returns value for given key. If key is invalid, returns null.
-     * @param string $key
+     * Returns value for given arguments. If key is invalid, returns null.
+     * @param string $namespace
+     * @param array $arguments
      * @return mixed
      */
-    public function get($key);
+    public function get($namespace, array $arguments);
 }

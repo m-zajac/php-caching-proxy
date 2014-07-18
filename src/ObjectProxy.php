@@ -21,13 +21,13 @@ class ObjectProxy
      * Constructor
      * @param object $object
      * @param string $cache_key
-     * @param Behaviors\BehaviorInterface $behavior
+     * @param Behaviors\AbstractBehavior $behavior
      * @param Serializer\SerializerInterface $serializer
      * @param KeyGenerator\KeyGeneratorInterface $key_generator
      */
     public function __construct(
         $object = null,
-        Behaviors\BehaviorInterface $behavior = null
+        Behaviors\AbstractBehavior $behavior = null
     ) {
         $this->object = $object;
         $this->behavior = $behavior;
@@ -111,12 +111,12 @@ class ObjectProxy
     }
 
     /**
-     * Returns callable
-     * @return callable
+     * Returns object
+     * @return object
      */
     public function proxyGetObject()
     {
-        return $this->callable;
+        return $this->object;
     }
 
     /**
@@ -141,15 +141,15 @@ class ObjectProxy
      */
     public function proxyGetMethods()
     {
-        return $this->callable;
+        return $this->proxied_methods;
     }
 
     /**
      * Sets behavior
-     * @param Behaviors\BehaviorInterface $behavior
+     * @param Behaviors\AbstractBehavior $behavior
      * @return ObjectProxy
      */
-    public function proxySetBehavior(Behaviors\BehaviorInterface $behavior)
+    public function proxySetBehavior(Behaviors\AbstractBehavior $behavior)
     {
         $this->behavior = $behavior;
 
@@ -158,7 +158,7 @@ class ObjectProxy
 
     /**
      * Returns behavior
-     * @return Behavior\BehaviorInterface
+     * @return Behavior\AbstractBehavior
      */
     public function proxyGetBehavior()
     {
@@ -189,9 +189,11 @@ class ObjectProxy
      */
     protected function proxyMakeMethodProxy($method_name)
     {
+        $behavior = clone $this->behavior;
+        $behavior->setNamespace($behavior->getNamespace().'.'.$method_name);
         return new CallableProxy(
             array($this->object, $method_name),
-            $this->behavior
+            $behavior
         );
     }
 }

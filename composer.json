@@ -10,6 +10,7 @@
             "email": "zajac.maciek@gmail.com"
         }
     ],
+    "license": "MIT",
     "require": {
         "php": ">=5.3.0"
     },
@@ -23,6 +24,9 @@
         "psr-4": {
             "MZ\\Proxy\\": "src/",
             "MZ\\Proxy\\Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "src/shortcuts.php"
+        ]
     }
 }

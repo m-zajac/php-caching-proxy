@@ -15,9 +15,6 @@ class CallableProxyTest extends \PHPUnit_Framework_TestCase
 
         $behavior = new Caching\CachingBehavior();
         $behavior->setBackend(new Caching\Backend\Memory());
-        $behavior->setKeyGenerator(new Caching\KeyGenerator\Serialize());
-        $behavior->setSerializer(new Caching\Serializer\Null());
-        $behavior->setCacheKey('test_key');
         $this->proxy->setBehavior($behavior);
     }
 

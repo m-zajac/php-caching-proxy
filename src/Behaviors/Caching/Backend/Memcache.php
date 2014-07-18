@@ -52,35 +52,50 @@ class Memcache implements BackendInterface
         );
     }
 
-    public function set($key, $value, $timeout = 0)
+    public function set($namespace, array $arguments, $value, $timeout = 0)
     {
-        $key = $this->generateInternalKey($key);
+        $key = $this->getKeyFromArguments($namespace, $arguments);
         $timeout_time = 0;
         if ($timeout) {
             $timeout_time = time() + (int)$timeout;
         }
 
-        $this->storage->set($key, $value, null, $timeout_time);
+        $this->storage->set(
+            $key,
+            serialize($value),
+            null,
+            $timeout_time
+        );
 
         return $this;
     }
 
-    public function clear($key)
+    public function clear($namespace, array $arguments)
     {
-        $key = $this->generateInternalKey($key);
+        $key = $this->getKeyFromArguments($namespace, $arguments);
         $this->storage->delete($key);
 
         return $this;
     }
 
-    public function get($key)
+    public function get($namespace, array $arguments)
     {
-        $key = $this->generateInternalKey($key);
-        return $this->storage->get($key);
+        $key = $this->getKeyFromArguments($namespace, $arguments);
+        $result = $this->storage->get($key);
+        if ($result === false) {
+            return null;
+        }
+
+        return unserialize($result);
     }
 
-    protected function generateInternalKey($key)
+    protected function getKeyFromArguments($namespace, array $arguments)
     {
-        return 'mzp'.$this->prefix.$key;
+        $key = '';
+        foreach ($arguments as $arg) {
+            $key .= serialize($arg);
+        }
+
+        return 'mzp'.$this->prefix.$namespace.$key;
     }
 }

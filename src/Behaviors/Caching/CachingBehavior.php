@@ -2,35 +2,29 @@
 
 namespace MZ\Proxy\Behaviors\Caching;
 
-use MZ\Proxy\Behaviors\BehaviorInterface;
+use MZ\Proxy\Behaviors\AbstractBehavior;
 use MZ\Proxy\Behaviors\Caching;
 
 /**
  * CachingBehavior
  */
-class CachingBehavior implements BehaviorInterface
+class CachingBehavior extends AbstractBehavior
 {
     protected $backend;
-    protected $key_generator;
-    protected $serializer;
     protected $timeout = 0;
 
     /**
      * Constructor
-     * @param string $cache_key
+     * @param int $timeout
+     * @param string $cache_namespace
      * @param Caching\Backend\BackendInterface $backend
-     * @param Caching\Serializer\SerializerInterface $serializer
-     * @param Caching\KeyGenerator\KeyGeneratorInterface $key_generator
      */
     public function __construct(
-        $cache_key = null,
-        Caching\Backend\BackendInterface $backend = null,
-        Caching\Serializer\SerializerInterface $serializer = null,
-        Caching\KeyGenerator\KeyGeneratorInterface $key_generator = null
+        $timeout = 0,
+        Caching\Backend\BackendInterface $backend = null
     ) {
+        $this->timeout = $timeout;
         $this->backend = $backend;
-        $this->key_generator = $key_generator;
-        $this->serializer = $serializer;
     }
 
     /**
@@ -38,17 +32,10 @@ class CachingBehavior implements BehaviorInterface
      */
     public function invoke($callable, array $arguments)
     {
-        if (!$this->cache_key) {
-            throw new Exceptions\Exception('Cache key is not set');
-        }
-
-        // create cache key for arguments
-        $cache_key = $this->key_generator->generate($this->cache_key, $arguments);
-
         // try getting result from cache
-        $result = $this->backend->get($cache_key);
-        if ($result !== false) {
-            return $this->serializer->unserialize($result);
+        $result = $this->backend->get($this->getNamespace(), $arguments);
+        if ($result !== null) {
+            return $result;
         }
 
         // invoke callable
@@ -56,33 +43,13 @@ class CachingBehavior implements BehaviorInterface
 
         // store result
         $this->backend->set(
-            $cache_key,
-            $this->serializer->serialize($result),
+            $this->getNamespace(),
+            $arguments,
+            $result,
             $this->timeout
         );
 
         return $result;
-    }
-
-    /**
-     * Sets cache key
-     * @param string $key
-     * @return CallableProxy
-     */
-    public function setCacheKey($key)
-    {
-        $this->cache_key = $key;
-
-        return $this;
-    }
-
-    /**
-     * Returns cache key
-     * @return string
-     */
-    public function getCacheKey()
-    {
-        return $this->cache_key;
     }
 
     /**
@@ -125,47 +92,5 @@ class CachingBehavior implements BehaviorInterface
     public function getBackend()
     {
         return $this->backend;
-    }
-
-    /**
-     * Sets serializer
-     * @param Caching\Serializer\SerializerInterface $serializer
-     * @return CallableProxy
-     */
-    public function setSerializer(Caching\Serializer\SerializerInterface $serializer)
-    {
-        $this->serializer = $serializer;
-
-        return $this;
-    }
-
-    /**
-     * Returns serializer
-     * @return Caching\Serializer\SerializerInterface
-     */
-    public function getSerializer()
-    {
-        return $this->serializer;
-    }
-
-    /**
-     * Sets key generator
-     * @param Caching\KeyGenerator\KeyGeneratorInterface $key_generator
-     * @return CallableProxy
-     */
-    public function setKeyGenerator(Caching\KeyGenerator\KeyGeneratorInterface $key_generator)
-    {
-        $this->key_generator = $key_generator;
-
-        return $this;
-    }
-
-    /**
-     * Returns key generator
-     * @return Caching\KeyGenerator\KeyGeneratorInterface
-     */
-    public function getKeyGenerator()
-    {
-        return $this->key_generator;
     }
 }

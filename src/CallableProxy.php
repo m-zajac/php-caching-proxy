@@ -13,11 +13,11 @@ class CallableProxy
     /**
      * Constructor
      * @param callable $callable
-     * @param Behaviors\BehaviorInterface $behavior
+     * @param Behaviors\AbstractBehavior $behavior
      */
     public function __construct(
         $callable = null,
-        Behaviors\BehaviorInterface $behavior = null
+        Behaviors\AbstractBehavior $behavior = null
     ) {
         $this->callable = $callable;
         $this->behavior = $behavior;
@@ -58,10 +58,10 @@ class CallableProxy
 
     /**
      * Sets behavior
-     * @param Behaviors\BehaviorInterface $behavior
+     * @param Behaviors\AbstractBehavior $behavior
      * @return CallableProxy
      */
-    public function setBehavior(Behaviors\BehaviorInterface $behavior)
+    public function setBehavior(Behaviors\AbstractBehavior $behavior)
     {
         $this->behavior = $behavior;
 
@@ -70,7 +70,7 @@ class CallableProxy
 
     /**
      * Returns behavior
-     * @return Behaviors\BehaviorInterface
+     * @return Behaviors\AbstractBehavior
      */
     public function getBehavior()
     {

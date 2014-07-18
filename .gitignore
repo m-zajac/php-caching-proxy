@@ -1,4 +1,4 @@
 *.sublime-*
 /vendor
-/doc
+/api
 /checks

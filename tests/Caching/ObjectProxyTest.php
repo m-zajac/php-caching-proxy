@@ -11,11 +11,11 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $behavior = new Caching\CachingBehavior();
-        $behavior->setBackend(new Caching\Backend\Memory());
-        $behavior->setKeyGenerator(new Caching\KeyGenerator\Serialize());
-        $behavior->setSerializer(new Caching\Serializer\Null());
-        $behavior->setCacheKey('test_key');
+        $behavior = new Caching\CachingBehavior(
+            0,
+            new Caching\Backend\Memory()
+        );
+        $behavior->setNamespace('test_namespace');
 
         $this->test_object = $this->getMock('stdClass', array('method1', 'method2', '__toString'));
 
@@ -82,6 +82,66 @@ class ObjectProxyTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($result, 1, 'Proxy returned valid data');
 
         $result = $proxy->method2();  // no cache!
+        $this->assertEquals($result, 2, 'Proxy returned valid data');
+    }
+
+    public function testCacheKeysNotOverlapping()
+    {
+        $this->test_object
+            ->expects($this->exactly(2))
+            ->method('method1')
+            ->will($this->returnCallback(function () {
+                return 1;
+            }))
+        ;
+        $this->test_object
+            ->expects($this->exactly(2))
+            ->method('method2')
+            ->will($this->returnCallback(function () {
+                return 2;
+            }))
+        ;
+
+        $argset_1 = array(
+            123,
+            new \stdClass(),
+            array(1, 2, 3, 'x' => 4),
+            'test'
+        );
+        $argset_2 = array(
+            new \stdClass(),
+            123,
+            array(1, 2, 3, 'x' => 4),
+            'test'
+        );
+
+ 
+        // argset 1 - fresh
+        $result = call_user_func_array(array($this->proxy, 'method1'), $argset_1);
+        $this->assertEquals($result, 1, 'Proxy returned valid data');
+
+        $result = call_user_func_array(array($this->proxy, 'method2'), $argset_1);
+        $this->assertEquals($result, 2, 'Proxy returned cached data');
+
+        // argset 1 - cached, no method call
+        $result = call_user_func_array(array($this->proxy, 'method1'), $argset_1);
+        $this->assertEquals($result, 1, 'Proxy returned valid data');
+
+        $result = call_user_func_array(array($this->proxy, 'method2'), $argset_1);
+        $this->assertEquals($result, 2, 'Proxy returned cached data');
+
+        // argset 2 - fresh
+        $result = call_user_func_array(array($this->proxy, 'method1'), $argset_2);
+        $this->assertEquals($result, 1, 'Proxy returned valid data');
+
+        $result = call_user_func_array(array($this->proxy, 'method2'), $argset_2);
+        $this->assertEquals($result, 2, 'Proxy returned valid data');
+
+        // argset 2 - cached, no method call
+        $result = call_user_func_array(array($this->proxy, 'method1'), $argset_2);
+        $this->assertEquals($result, 1, 'Proxy returned valid data');
+
+        $result = call_user_func_array(array($this->proxy, 'method2'), $argset_2);
         $this->assertEquals($result, 2, 'Proxy returned valid data');
     }
 

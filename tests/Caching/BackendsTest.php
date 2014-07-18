@@ -24,17 +24,29 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
         } else {
             print_r("No Memcache class\n");
         }
+
+        $this->test_arguments = array(
+            'as sdasasdf',
+            new \stdClass(),
+            true,
+            123
+        );
+        $this->namespace = 'test';
     }
 
     public function testSetGet()
     {
-        $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
         foreach ($this->backends as $backend_name => $backend) {
-            $backend->set($test_key, $test_value);
+            $backend->clear($this->namespace, $this->test_arguments);
+            $this->assertNull(
+                $backend->get($this->namespace, $this->test_arguments),
+                "$backend_name - returned null when no data"
+            );
+            $backend->set($this->namespace, $this->test_arguments, $test_value);
             $this->assertEquals(
-                $backend->get($test_key),
+                $backend->get($this->namespace, $this->test_arguments),
                 $test_value,
                 "$backend_name - returned valid data"
             );
@@ -43,13 +55,12 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
 
     public function testUnset()
     {
-        $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
         foreach ($this->backends as $backend_name => $backend) {
-            $backend->clear($test_key);
+            $backend->clear($this->namespace, $this->test_arguments);
             $this->assertEquals(
-                $backend->get($test_key),
+                $backend->get($this->namespace, $this->test_arguments),
                 null,
                 "$backend_name - data deleted properly"
             );
@@ -58,19 +69,18 @@ class BackendsTest extends \PHPUnit_Framework_TestCase
 
     public function testTimeout()
     {
-        $test_key = 'as sdasasdf';
         $test_value = 'asdsfsad fsadfsadf sadfsadf';
 
         foreach ($this->backends as $backend_name => $backend) {
-            $backend->set($test_key, $test_value, 1);
+            $backend->set($this->namespace, $this->test_arguments, $test_value, 1);
             $this->assertEquals(
-                $backend->get($test_key),
+                $backend->get($this->namespace, $this->test_arguments),
                 $test_value,
                 "$backend_name - returned valid data"
             );
             sleep(2);
             $this->assertEquals(
-                $backend->get($test_key),
+                $backend->get($this->namespace, $this->test_arguments),
                 null,
                 "$backend_name - data expired propelry"
             );
