@@ -3,6 +3,7 @@
 mkdir -p checks
 
 # cs sniffer
+rm -f checks/cs_report.txt
 vendor/squizlabs/php_codesniffer/scripts/phpcs --standard=PSR2 --report-file=checks/cs_report.txt src/ tests/
 
 # unittests

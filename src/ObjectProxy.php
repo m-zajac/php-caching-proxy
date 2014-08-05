@@ -31,6 +31,9 @@ class ObjectProxy
     ) {
         $this->object = $object;
         $this->behavior = $behavior;
+        if ($behavior) {
+            $this->behavior->setProxy($this);
+        }
     }
 
     /**
@@ -45,9 +48,17 @@ class ObjectProxy
             return call_user_func_array(array($this->object, $name), $arguments);
         }
 
-        $proxy = $this->proxyGetMethodProxy($name);
+        // distinct proxy for each method?
+        if ($this->behavior->distinct_for_methods) {
+            $proxy = $this->proxyGetMethodProxy($name);
+            return $proxy->__invoke($arguments);
+        }
 
-        return call_user_func_array($proxy, $arguments);
+        // ...no, object proxy - invoke on behavior
+        return $this->proxyGetBehavior()->invoke(
+            array($this->object, $name),
+            $arguments
+        );
     }
 
     /**
@@ -152,6 +163,7 @@ class ObjectProxy
     public function proxySetBehavior(Behaviors\AbstractBehavior $behavior)
     {
         $this->behavior = $behavior;
+        $this->behavior->setProxy($this);
 
         return $this;
     }
@@ -183,7 +195,7 @@ class ObjectProxy
     }
 
     /**
-     * Creates CallableProxy for objects method
+     * Creates and returns CallableProxy for given method name
      * @param string $method_name
      * @return CallableProxy
      */
@@ -191,6 +203,7 @@ class ObjectProxy
     {
         $behavior = clone $this->behavior;
         $behavior->setNamespace($behavior->getNamespace().'.'.$method_name);
+
         return new CallableProxy(
             array($this->object, $method_name),
             $behavior

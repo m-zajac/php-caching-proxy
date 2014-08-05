@@ -10,6 +10,7 @@ use MZ\Proxy\Behaviors\Caching;
  */
 class CachingBehavior extends AbstractBehavior
 {
+    public $distinct_for_methods = true;
     protected $backend;
     protected $timeout = 0;
 

@@ -21,6 +21,9 @@ class CallableProxy
     ) {
         $this->callable = $callable;
         $this->behavior = $behavior;
+        if ($this->behavior) {
+            $this->behavior->setProxy($this);
+        }
     }
 
     /**
@@ -64,6 +67,9 @@ class CallableProxy
     public function setBehavior(Behaviors\AbstractBehavior $behavior)
     {
         $this->behavior = $behavior;
+        if ($this->behavior) {
+            $this->behavior->setProxy($this);
+        }
 
         return $this;
     }

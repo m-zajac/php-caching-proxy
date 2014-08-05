@@ -14,29 +14,44 @@ class ShortcutsTest extends \PHPUnit_Framework_TestCase
             'shortcut' => function ($subject) {
                 return Shortcuts\wrapWithMemoryProxy($subject);
             },
-            'behavior_class' => 'MZ\Proxy\Behaviors\Caching\CachingBehavior'
+            'behavior_class' => 'MZ\Proxy\Behaviors\Caching\CachingBehavior',
+            'subject_types' => array('object', 'callable'),
         );
         if (class_exists('\Memcache')) {
             $data[] = array(
                 'shortcut' => function ($subject) {
                     return Shortcuts\wrapWithMemcacheProxy($subject);
                 },
-                'behavior_class' => 'MZ\Proxy\Behaviors\Caching\CachingBehavior'
+                'behavior_class' => 'MZ\Proxy\Behaviors\Caching\CachingBehavior',
+                'subject_types' => array('object', 'callable'),
             );
         }
+        $data[] = array(
+            'shortcut' => function ($subject) {
+                return Shortcuts\createLazyInitProxy(function () use ($subject) {
+                    return $subject;
+                });
+            },
+            'behavior_class' => 'MZ\Proxy\Behaviors\LazyInit\LazyInitBehavior',
+            'subject_types' => array('object'),
+        );
 
         foreach ($data as $test_data) {
-            $subject1 = new \stdClass();
-            $proxy = $test_data['shortcut']($subject1);
-            $this->assertInstanceOf('MZ\Proxy\ObjectProxy', $proxy);
+            if (in_array('object', $test_data['subject_types'])) {
+                $subject = new \stdClass();
+                $proxy = $test_data['shortcut']($subject);
+                $this->assertInstanceOf('MZ\Proxy\ObjectProxy', $proxy);
+                $this->assertInstanceOf($test_data['behavior_class'], $proxy->proxyGetBehavior());
+            }
 
-            $subject2 = function () {
-                return 'ok';
-            };
-            $proxy = $test_data['shortcut']($subject2);
-            $this->assertInstanceOf('MZ\Proxy\CallableProxy', $proxy);
-
-            $this->assertInstanceOf($test_data['behavior_class'], $proxy->getBehavior());
+            if (in_array('callable', $test_data['subject_types'])) {
+                $subject = function () {
+                    return 'ok';
+                };
+                $proxy = $test_data['shortcut']($subject);
+                $this->assertInstanceOf('MZ\Proxy\CallableProxy', $proxy);
+                $this->assertInstanceOf($test_data['behavior_class'], $proxy->getBehavior());
+            }
         }
     }
 

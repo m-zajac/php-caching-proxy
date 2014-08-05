@@ -1,7 +1,7 @@
 
 # PHP proxy
 
-This library provides proxy classes with easily extendable behavior. Caching proxy included!
+This library provides proxy classes with easily extendable behavior. Library includes ready for use caching proxy and lazy instantiation proxy.
 
 # Requirements and dependencies
 

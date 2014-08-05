@@ -8,6 +8,7 @@ use MZ\Proxy\Behaviors\Caching;
 class ObjectProxyTest extends \PHPUnit_Framework_TestCase
 {
     protected $proxy;
+    protected $test_object;
 
     public function setUp()
     {
